@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boutique | Oma Beauty</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+    rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Shop Specific Styles */
+    .shop-container {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: var(--spacing-lg);
+      padding-top: var(--spacing-md);
+      padding-bottom: var(--spacing-xl);
+    }
+
+    .sidebar {
+      padding-right: var(--spacing-md);
+      border-right: 1px solid var(--color-border);
+    }
+
+    .filter-group {
+      margin-bottom: var(--spacing-md);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 1px solid #eee;
+    }
+
+    .filter-title {
+      font-family: var(--font-body);
+      font-weight: 600;
+      margin-bottom: var(--spacing-sm);
+      display: flex;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .filter-list li {
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: var(--color-text-light);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .filter-list li:hover {
+      color: var(--color-accent);
+    }
+
+    .filter-list input[type="checkbox"] {
+      accent-color: var(--color-accent);
+    }
+
+    .shop-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .sort-select {
+      padding: 8px 16px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      color: var(--color-text);
+      outline: none;
+    }
+
+    @media (max-width: 768px) {
+      .shop-container {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        display: none;
+        /* Todo: Mobile Filter Drawer */
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    Livraison gratuite dès 80 DT d’achat
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <div class="header-main">
+        <div class="search-bar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+
+        <a href="/" class="logo">Oma <span>Beauty</span></a>
+
+        <div class="nav-icons">
+          <a href="/login.html" class="nav-icon"><i class="fa-regular fa-user"></i></a>
+          <a href="#" class="nav-icon"><i class="fa-regular fa-heart"></i></a>
+          <a href="/panier.html" class="nav-icon">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span class="cart-count" id="cart-count">0</span>
+          </a>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <ul>
+          <li><a href="/boutique.html">Nouveautés</a></li>
+          <li><a href="/boutique.html?cat=maquillage">Maquillage</a></li>
+          <li><a href="/boutique.html?cat=parfum">Parfum</a></li>
+          <li><a href="/boutique.html?cat=soin">Soin Visage</a></li>
+          <li><a href="/boutique.html?cat=corps">Corps & Bain</a></li>
+          <li><a href="/boutique.html?cat=cheveux">Cheveux</a></li>
+          <li><a href="/boutique.html?cat=marques">Marques</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Shop Content -->
+  <div class="container">
+    <div class="shop-container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="filter-group">
+          <h4 class="filter-title">Catégories</h4>
+          <ul class="filter-list" id="category-filters">
+            <!-- Injected via JS -->
+          </ul>
+        </div>
+
+        <div class="filter-group">
+          <h4 class="filter-title">Marques</h4>
+          <ul class="filter-list" id="brand-filters">
+            <!-- Injected via JS -->
+          </ul>
+        </div>
+
+        <div class="filter-group">
+          <h4 class="filter-title">Prix</h4>
+          <input type="range" min="0" max="1000" value="1000" style="width: 100%;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 5px;">
+            <span>0 TND</span>
+            <span>1000 TND</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Grid -->
+      <main>
+        <div class="shop-header">
+          <div id="product-count">Affichage de 0 produits</div>
+          <select class="sort-select" id="sort-select" onchange="sortProducts()">
+            <option value="newest">Nouveautés</option>
+            <option value="price-asc">Prix croissant</option>
+            <option value="price-desc">Prix décroissant</option>
+            <option value="name-asc">Nom A-Z</option>
+          </select>
+        </div>
+
+        <div class="product-grid" id="shop-grid">
+          <!-- Products injected via JS -->
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <a href="/" class="logo" style="color: white; display: block; margin-bottom: 20px;">Oma
+            <span>Beauty</span></a>
+          <p style="color: #aaa; line-height: 1.8;">Votre destination beauté de confiance en Tunisie. Retrouvez les plus
+            grandes marques de parfums et cosmétiques.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Navigation</h4>
+          <ul>
+            <li><a href="#">Nouveautés</a></li>
+            <li><a href="#">Best-sellers</a></li>
+            <li><a href="#">Promotions</a></li>
+            <li><a href="#">Nos Magasins</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Aide</h4>
+          <ul>
+            <li><a href="#">Suivre ma commande</a></li>
+            <li><a href="#">Livraison & Retours</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Suivez-nous</h4>
+          <div class="social-icons">
+            <!-- Social icons here -->
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2025 Oma Beauty. Tous droits réservés.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+
+  <script src="js/products.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    // Shop specific logic
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProducts().then(() => {
+        currentProducts = [...products];
+        initShop();
+      });
+    });
+
+    let currentProducts = [];
+
+    function initShop() {
+      currentProducts = [...products];
+      renderFilters();
+      renderShopProducts(currentProducts);
+
+      // Check URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      const cat = urlParams.get('cat');
+      if (cat) {
+        filterByCategory(cat);
+      }
+    }
+
+    function renderFilters() {
+      // Categories
+      const categories = [...new Set(products.map(p => p.category))];
+      const catList = document.getElementById('category-filters');
+      catList.innerHTML = categories.map(c => `
+                <li>
+                    <input type="checkbox" value="${c}" onchange="applyFilters()"> ${c}
+                </li>
+            `).join('');
+
+      // Brands
+      const brands = [...new Set(products.map(p => p.brand))];
+      const brandList = document.getElementById('brand-filters');
+      brandList.innerHTML = brands.map(b => `
+                <li>
+                    <input type="checkbox" value="${b}" onchange="applyFilters()"> ${b}
+                </li>
+            `).join('');
+    }
+
+    function applyFilters() {
+      const selectedCats = Array.from(document.querySelectorAll('#category-filters input:checked')).map(cb => cb.value);
+      const selectedBrands = Array.from(document.querySelectorAll('#brand-filters input:checked')).map(cb => cb.value);
+
+      currentProducts = products.filter(p => {
+        const matchCat = selectedCats.length === 0 || selectedCats.includes(p.category);
+        const matchBrand = selectedBrands.length === 0 || selectedBrands.includes(p.brand);
+        return matchCat && matchBrand;
+      });
+
+      sortProducts(); // Re-sort after filtering
+    }
+
+    function sortProducts() {
+      const sortValue = document.getElementById('sort-select').value;
+
+      if (sortValue === 'price-asc') {
+        currentProducts.sort((a, b) => a.price - b.price);
+      } else if (sortValue === 'price-desc') {
+        currentProducts.sort((a, b) => b.price - a.price);
+      } else if (sortValue === 'name-asc') {
+        currentProducts.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (sortValue === 'newest') {
+        currentProducts.sort((a, b) => (a.isNew === b.isNew) ? 0 : a.isNew ? -1 : 1);
+      }
+
+      renderShopProducts(currentProducts);
+    }
+
+    function renderShopProducts(items) {
+      const grid = document.getElementById('shop-grid');
+      const count = document.getElementById('product-count');
+
+      count.textContent = `Affichage de ${items.length} produits`;
+
+      if (items.length === 0) {
+        grid.innerHTML = '<p>Aucun produit trouvé.</p>';
+        return;
+      }
+
+      grid.innerHTML = items.map(product => `
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.name}">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-brand">${product.brand}</div>
+                        <h3 class="product-title">${product.name}</h3>
+                        <div class="product-price">${formatPrice(product.price)}</div>
+                        <button class="btn-add-cart" onclick="addToCart('${product.id}')">Ajouter au panier</button>
+                    </div>
+                </div>
+            `).join('');
+    }
+
+    // Helper for URL param filtering (simple version)
+    function filterByCategory(cat) {
+      // Capitalize first letter to match data
+      const formattedCat = cat.charAt(0).toUpperCase() + cat.slice(1);
+
+      // Check the checkbox
+      const checkboxes = document.querySelectorAll('#category-filters input');
+      checkboxes.forEach(cb => {
+        if (cb.value.toLowerCase() === formattedCat.toLowerCase()) {
+          cb.checked = true;
+        }
+      });
+
+      applyFilters();
+    }
+  </script>
+</body>
+
+</html>

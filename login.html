@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion | Oma Beauty</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .auth-container {
+            max-width: 400px;
+            margin: var(--spacing-xl) auto;
+            padding: var(--spacing-md);
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            text-align: center;
+        }
+        
+        .auth-form {
+            margin-top: var(--spacing-md);
+        }
+        
+        .form-group {
+            margin-bottom: var(--spacing-sm);
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: var(--color-text-light);
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+        }
+        
+        .divider {
+            margin: var(--spacing-md) 0;
+            border-top: 1px solid var(--color-border);
+            position: relative;
+        }
+        
+        .divider span {
+            background: white;
+            padding: 0 10px;
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--color-text-light);
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-main" style="justify-content: center;">
+                <a href="/" class="logo">Oma <span>Beauty</span></a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="auth-container">
+            <h2 class="section-title" style="font-size: 2rem;">Connexion</h2>
+            <p style="color: var(--color-text-light);">Accédez à votre compte pour commander.</p>
+            
+            <div class="error-message" id="login-error" style="display:none; background:#fee; color:#c33; padding:10px; border-radius:6px; margin-bottom:10px;"></div>
+            
+            <form class="auth-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="user-email" required placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <input type="password" id="user-password" required placeholder="Mot de passe">
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Se Connecter</button>
+            </form>
+            
+            <div class="divider"><span>OU</span></div>
+            
+            <p style="font-size: 0.9rem;">
+                Pas encore de compte ? <a href="signup.html" style="color: var(--color-accent); text-decoration: underline;">Créer un compte</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="js/firebase-config.js"></script>
+    
+    <!-- Login Script -->
+    <script>
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('user-email').value;
+            const password = document.getElementById('user-password').value;
+            const errorDiv = document.getElementById('login-error');
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            
+            errorDiv.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Connexion...';
+            
+            try {
+                // Login with Firebase
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Create/update session
+                await db.collection('sessions').doc(user.uid).set({
+                    userId: user.uid,
+                    email: user.email,
+                    name: user.displayName || email.split('@')[0],
+                    loginDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastActivity: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Redirect
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirect = urlParams.get('redirect') || 'index.html';
+                window.location.href = redirect;
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                let errorMessage = 'Email ou mot de passe incorrect';
+                
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = 'Aucun compte trouvé avec cet email. <a href="signup.html" style="color:#c33; text-decoration:underline;">Créer un compte?</a>';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Mot de passe incorrect';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Email invalide';
+                } else if (error.code === 'auth/invalid-login-credentials') {
+                    errorMessage = 'Email ou mot de passe incorrect. <a href="signup.html" style="color:#c33; text-decoration:underline;">Créer un compte?</a>';
+                }
+                
+                errorDiv.innerHTML = errorMessage;
+                errorDiv.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Se Connecter';
+            }
+        }
+    </script>
+    
+    <!-- Auth & Main Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

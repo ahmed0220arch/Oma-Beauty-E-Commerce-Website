@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commande | Oma Beauty</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .checkout-container {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: var(--spacing-lg);
+    }
+
+    .form-group {
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+    }
+
+    .checkout-summary {
+      background-color: #f9f9f9;
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      height: fit-content;
+    }
+
+    @media (max-width: 768px) {
+      .checkout-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header (Simplified for Checkout) -->
+  <header>
+    <div class="container">
+      <div class="header-main" style="justify-content: center;">
+        <a href="/" class="logo">Oma <span>Beauty</span></a>
+      </div>
+    </div>
+  </header>
+
+  <div class="container section">
+    <h1 class="section-title">Validation de la commande</h1>
+
+    <div class="checkout-container">
+      <!-- Form -->
+      <div class="checkout-form">
+        <h3 style="margin-bottom: var(--spacing-md);">Informations de livraison</h3>
+        <form id="checkout-form" onsubmit="handleCheckout(event)">
+          <div class="form-group">
+            <label>Nom complet</label>
+            <input type="text" id="customer-name" required placeholder="Prénom et Nom">
+          </div>
+          <div class="form-group">
+            <label>Téléphone</label>
+            <input type="tel" id="customer-phone" required placeholder="Numéro de téléphone">
+          </div>
+          <div class="form-group">
+            <label>Adresse</label>
+            <input type="text" id="customer-address" required placeholder="Adresse">
+          </div>
+          <div class="form-group">
+            <label>Ville</label>
+            <input type="text" id="customer-city" required>
+          </div>
+          <div class="form-group">
+            <label>Code Postal</label>
+            <input type="text" id="customer-postal" required>
+          </div>
+
+          <h3 style="margin-top: var(--spacing-md); margin-bottom: var(--spacing-md);">Paiement</h3>
+          <div class="form-group">
+            <label>
+              <input type="radio" name="payment" value="cod" checked> Paiement à la livraison
+            </label>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="radio" name="payment" value="card"> Carte Bancaire (Simulation)
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="margin-top: var(--spacing-md); width: 100%;">Confirmer la
+            commande</button>
+        </form>
+      </div>
+
+      <!-- Summary -->
+      <div class="checkout-summary" id="order-summary">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+
+  <script src="js/products.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Require authentication for checkout (wait for auth to be ready)
+      const isAuthenticated = await requireAuth('/commande.html');
+      if (!isAuthenticated) {
+        return;
+      }
+      
+      renderOrderSummary();
+    });
+
+    function renderOrderSummary() {
+      const cart = getCart();
+      const container = document.getElementById('order-summary');
+
+      if (cart.length === 0) {
+        window.location.href = '/boutique.html';
+        return;
+      }
+
+      let subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const shipping = subtotal >= 80 ? 0 : 7;
+      const total = subtotal + shipping;
+
+      container.innerHTML = `
+                <h3 style="margin-bottom: var(--spacing-sm);">Récapitulatif</h3>
+                <div style="margin-bottom: var(--spacing-md); border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+                    ${cart.map(item => `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem;">
+                            <span>${item.quantity}x ${item.name}</span>
+                            <span>${formatPrice(item.price * item.quantity)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>Sous-total</span>
+                    <span>${formatPrice(subtotal)}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>Livraison</span>
+                    <span>${shipping === 0 ? 'Gratuite' : formatPrice(shipping)}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 10px; font-weight: 700; font-size: 1.1rem;">
+                    <span>Total</span>
+                    <span>${formatPrice(total)}</span>
+                </div>
+            `;
+    }
+
+    async function handleCheckout(e) {
+      e.preventDefault();
+      
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Traitement...';
+      
+      try {
+        const cart = getCart();
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const shipping = subtotal >= 80 ? 0 : 7;
+        const total = subtotal + shipping;
+        
+        // Get current user info
+        const currentUser = auth.currentUser;
+        const userEmail = currentUser ? currentUser.email : 'Non connecté';
+        
+        // Get form data
+        const orderData = {
+          // Customer info
+          customerName: document.getElementById('customer-name').value.trim(),
+          customerPhone: document.getElementById('customer-phone').value.trim(),
+          customerAddress: document.getElementById('customer-address').value.trim(),
+          customerCity: document.getElementById('customer-city').value.trim(),
+          customerPostal: document.getElementById('customer-postal').value.trim(),
+          
+          // User info
+          userId: currentUser ? currentUser.uid : null,
+          userEmail: userEmail,
+          userName: document.getElementById('customer-name').value.trim(),
+          
+          // Order details
+          items: cart.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            subtotal: item.price * item.quantity
+          })),
+          
+          // Totals
+          subtotal: subtotal,
+          shipping: shipping,
+          total: total,
+          
+          // Payment & Status
+          paymentMethod: document.querySelector('input[name="payment"]:checked').value,
+          status: 'pending',
+          
+          // Timestamps
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        // Save order to Firebase
+        const orderRef = await db.collection('orders').add(orderData);
+        console.log('Order saved with ID:', orderRef.id);
+        
+        // Clear cart
+        localStorage.removeItem('oma_cart');
+        
+        // Show success message
+        alert(`Merci pour votre commande !\n\nNuméro de commande: ${orderRef.id.substring(0, 8).toUpperCase()}\n\nVous recevrez bientôt une confirmation.`);
+        
+        // Redirect to home
+        window.location.href = '/';
+        
+      } catch (error) {
+        console.error('Error saving order:', error);
+        alert('Erreur lors de l\'enregistrement de la commande. Veuillez réessayer.');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Confirmer la commande';
+      }
+    }
+  </script>
+</body>
+
+</html>

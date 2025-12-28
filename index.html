@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oma Beauty | Cosmétiques & Parfums de Luxe</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- Announcement Bar -->
+    <div class="announcement-bar">
+        Livraison gratuite dès 80 DT d’achat
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-main">
+                <div class="search-bar">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+
+                <a href="/" class="logo">Oma <span>Beauty</span></a>
+
+                <div class="nav-icons">
+                    <a href="#" class="nav-icon" id="user-icon-link"><i class="fa-solid fa-user"></i></a>
+                    <a href="#" class="nav-icon"><i class="fa-regular fa-heart"></i></a>
+                    <a href="/panier.html" class="nav-icon">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                        <span class="cart-count" id="cart-count">0</span>
+                    </a>
+                </div>
+            </div>
+
+            <nav class="header-nav">
+                <ul>
+                    <li><a href="/boutique.html">Nouveautés</a></li>
+                    <li><a href="/boutique.html?cat=maquillage">Maquillage</a></li>
+                    <li><a href="/boutique.html?cat=parfum">Parfum</a></li>
+                    <li><a href="/boutique.html?cat=soin">Soin Visage</a></li>
+                    <li><a href="/boutique.html?cat=corps">Corps & Bain</a></li>
+                    <li><a href="/boutique.html?cat=cheveux">Cheveux</a></li>
+                    <li><a href="/boutique.html?cat=marques">Marques</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" style="background-image: url('https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1920&h=800&fit=crop');">
+        <div class="hero-content">
+            <h1>Révélez votre beauté naturelle</h1>
+            <p>Découvrez notre sélection exclusive de parfums et cosmétiques de luxe.</p>
+            <a href="/boutique.html" class="btn btn-primary">Découvrir</a>
+        </div>
+    </section>
+
+    <!-- Benefits -->
+    <div class="benefits">
+        <div class="container">
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <h4>Livraison Rapide</h4>
+                    <p>Partout en Tunisie</p>
+                </div>
+                <div class="benefit-item">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <h4>Paiement Sécurisé</h4>
+                    <p>À la livraison ou par carte</p>
+                </div>
+                <div class="benefit-item">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <h4>Retours Faciles</h4>
+                    <p>Sous 14 jours</p>
+                </div>
+                <div class="benefit-item">
+                    <i class="fa-solid fa-headset"></i>
+                    <h4>Service Client</h4>
+                    <p>Disponible 7j/7</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Arrivals -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <h3 class="section-subtitle">Nouveautés</h3>
+                <h2 class="section-title">Les Dernières Tendances</h2>
+            </div>
+
+            <div class="product-grid" id="new-arrivals-grid">
+                <!-- Products injected via JS -->
+            </div>
+
+            <div style="text-align: center; margin-top: var(--spacing-lg);">
+                <a href="/boutique.html" class="btn btn-outline">Voir tout</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <a href="/" class="logo" style="color: white; display: block; margin-bottom: 20px;">Oma
+                        <span>Beauty</span></a>
+                    <p style="color: #aaa; line-height: 1.8;">Votre destination beauté de confiance en Tunisie.
+                        Retrouvez les plus grandes marques de parfums et cosmétiques.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Navigation</h4>
+                    <ul>
+                        <li><a href="#">Nouveautés</a></li>
+                        <li><a href="#">Best-sellers</a></li>
+                        <li><a href="#">Promotions</a></li>
+                        <li><a href="#">Nos Magasins</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Aide</h4>
+                    <ul>
+                        <li><a href="#">Suivre ma commande</a></li>
+                        <li><a href="#">Livraison & Retours</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Suivez-nous</h4>
+                    <div class="social-icons">
+                        <!-- Social icons here -->
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2025 Oma Beauty. Tous droits réservés.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="js/firebase-config.js"></script>
+    
+    <!-- Other Scripts -->
+    <script src="js/products.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

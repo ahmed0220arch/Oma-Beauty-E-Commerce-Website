@@ -1,0 +1,250 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | Oma Beauty</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .admin-hero { display:flex; align-items:center; justify-content:space-between; padding: var(--spacing-lg) 0; }
+    .admin-hero h1 { margin:0; font-size: 2rem; }
+    .badge-pill { background: var(--color-accent); color: #fff; padding: 4px 10px; border-radius: 999px; font-size: 0.8rem; }
+    .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-lg); }
+    .stat-card { background:#fff; border:1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--spacing-md); box-shadow: var(--shadow-sm); }
+    .stat-label { color: var(--color-text-light); font-size: 0.9rem; }
+    .stat-value { font-size: 1.6rem; font-weight: 700; margin-top: 6px; }
+    .tables-wrap { display:grid; grid-template-columns: 1fr; gap: var(--spacing-md); }
+    .table-card { background:#fff; border:1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+    .table-card header { display:flex; justify-content:space-between; align-items:center; padding: 12px 16px; border-bottom:1px solid var(--color-border); }
+    .table-card h3 { margin:0; font-size:1.1rem; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding: 10px 12px; text-align: left; }
+    th { background:#fafafa; font-size: 0.9rem; color: var(--color-text-light); border-bottom:1px solid var(--color-border); }
+    tr + tr td { border-top:1px solid var(--color-border); }
+    .status { padding: 4px 8px; border-radius: 999px; font-size: 0.85rem; }
+    .status.paid { background:#e6ffed; color:#1f7a4d; }
+    .status.pending { background:#fff7e6; color:#a66300; }
+    .status.failed { background:#ffe6e6; color:#b32020; }
+    
+    /* Product Management Styles */
+    .btn-add { background:#27ae60; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-size:0.9rem; }
+    .btn-add:hover { background:#219a52; }
+    .btn-edit { background:#3498db; color:white; border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:0.8rem; margin-right:4px; }
+    .btn-delete { background:#e74c3c; color:white; border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:0.8rem; }
+    .btn-edit:hover { background:#2980b9; }
+    .btn-delete:hover { background:#c0392b; }
+    
+    /* Modal Styles */
+    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; }
+    .modal.show { display:flex; }
+    .modal-content { background:white; padding:24px; border-radius:12px; width:90%; max-width:500px; max-height:90vh; overflow-y:auto; }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+    .modal-header h2 { margin:0; font-size:1.4rem; }
+    .modal-close { background:none; border:none; font-size:1.5rem; cursor:pointer; color:#999; }
+    .modal-close:hover { color:#333; }
+    .form-group { margin-bottom:16px; }
+    .form-group label { display:block; margin-bottom:6px; font-weight:500; color:#333; }
+    .form-group input, .form-group select, .form-group textarea { width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:6px; font-size:1rem; }
+    .form-group input:focus, .form-group select:focus { outline:none; border-color:var(--color-accent); }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .btn-submit { width:100%; background:var(--color-accent); color:white; border:none; padding:12px; border-radius:6px; font-size:1rem; cursor:pointer; margin-top:10px; }
+    .btn-submit:hover { opacity:0.9; }
+    
+    @media(max-width: 768px){
+      .admin-hero { flex-direction: column; align-items: flex-start; gap: 8px; }
+      th, td { font-size: 0.9rem; }
+      .form-row { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="announcement-bar">Dashboard administrateur</div>
+  <header>
+    <div class="container">
+      <div class="header-main">
+        <div></div>
+        <a href="/" class="logo">Oma <span>Beauty</span></a>
+        <div class="nav-icons">
+          <a href="/boutique.html" class="nav-icon"><i class="fa-solid fa-store"></i></a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="admin-hero">
+      <div>
+        <p class="badge-pill">Admin</p>
+        <h1>Tableau de bord</h1>
+        <p class="text-muted">Suivez les utilisateurs, produits et commandes en temps réel.</p>
+      </div>
+      <div>
+        <button class="btn btn-secondary" onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer;">
+          <i class="fa-solid fa-sign-out"></i> Déconnexion
+        </button>
+      </div>
+    </div>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Utilisateurs</div>
+        <div class="stat-value" id="stat-users">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Produits</div>
+        <div class="stat-value" id="stat-products">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Commandes</div>
+        <div class="stat-value" id="stat-orders">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Revenus</div>
+        <div class="stat-value" id="stat-revenue">-</div>
+      </div>
+    </section>
+
+    <section class="tables-wrap">
+      <div class="table-card">
+        <header><h3>Tous les utilisateurs</h3></header>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Nom</th><th>Email</th><th>Rôle</th><th>Créé le</th></tr>
+            </thead>
+            <tbody id="admin-users"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <header>
+          <h3>Produits</h3>
+          <button class="btn-add" onclick="openAddProductModal()">
+            <i class="fa-solid fa-plus"></i> Ajouter un produit
+          </button>
+        </header>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr><th>Image</th><th>Nom</th><th>Marque</th><th>Catégorie</th><th>Prix</th><th>Stock</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="admin-products"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <header><h3>Commandes récentes</h3></header>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Client</th><th>Total</th><th>Statut</th><th>Date</th></tr>
+            </thead>
+            <tbody id="admin-orders"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Product Modal -->
+  <div class="modal" id="product-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">Ajouter un produit</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="product-form" onsubmit="handleProductSubmit(event)">
+        <input type="hidden" id="product-id">
+        
+        <div class="form-group">
+          <label>Nom du produit *</label>
+          <input type="text" id="product-name" required placeholder="Nom du produit">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Marque *</label>
+            <input type="text" id="product-brand" required placeholder="Marque">
+          </div>
+          <div class="form-group">
+            <label>Catégorie *</label>
+            <select id="product-category" required>
+              <option value="">Sélectionner...</option>
+              <option value="Parfum">Parfum</option>
+              <option value="Maquillage">Maquillage</option>
+              <option value="Soin">Soin Visage</option>
+              <option value="Corps">Corps & Bain</option>
+              <option value="Cheveux">Cheveux</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Prix (TND) *</label>
+            <input type="number" id="product-price" required step="0.001" min="0" placeholder="Prix">
+          </div>
+          <div class="form-group">
+            <label>Stock *</label>
+            <input type="number" id="product-stock" required min="0" placeholder="Quantité">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Image du produit *</label>
+          <input type="file" id="product-image" accept="image/*" onchange="previewImage(event)">
+          <input type="hidden" id="product-image-url">
+          <div id="image-preview" style="margin-top:10px; display:none;">
+            <img id="preview-img" src="" alt="Aperçu" style="max-width:150px; max-height:150px; border-radius:8px; border:1px solid #ddd;">
+            <p id="current-image-text" style="font-size:0.85rem; color:#666; margin-top:5px;"></p>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="product-description" rows="3" placeholder="Description"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="product-new"> Marquer comme nouveau produit
+          </label>
+        </div>
+        
+        <button type="submit" class="btn-submit" id="submit-btn">
+          <i class="fa-solid fa-save"></i> Enregistrer
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal" id="delete-modal">
+    <div class="modal-content" style="max-width:400px; text-align:center;">
+      <h2 style="margin-bottom:16px;">Confirmer la suppression</h2>
+      <p style="color:#666; margin-bottom:20px;">Êtes-vous sûr de vouloir supprimer ce produit ? Cette action est irréversible.</p>
+      <div style="display:flex; gap:12px; justify-content:center;">
+        <button onclick="closeDeleteModal()" style="padding:10px 24px; border:1px solid #ddd; background:white; border-radius:6px; cursor:pointer;">Annuler</button>
+        <button onclick="confirmDelete()" style="padding:10px 24px; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer;">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Firebase Config -->
+  <script src="js/firebase-config.js"></script>
+  
+  <!-- Admin Script -->
+  <script src="js/admin.js"></script>
+</body>
+</html>

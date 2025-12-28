@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon Panier | Oma Beauty</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .cart-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .cart-table th {
+      text-align: left;
+      padding: var(--spacing-sm);
+      border-bottom: 2px solid var(--color-border);
+      font-family: var(--font-heading);
+    }
+
+    .cart-table td {
+      padding: var(--spacing-sm);
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: middle;
+    }
+
+    .cart-item-info {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .cart-item-img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      background-color: #f9f9f9;
+    }
+
+    .qty-input {
+      width: 50px;
+      padding: 5px;
+      text-align: center;
+      border: 1px solid var(--color-border);
+    }
+
+    .cart-summary {
+      background-color: #f9f9f9;
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      max-width: 400px;
+      margin-left: auto;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .summary-total {
+      border-top: 2px solid var(--color-border);
+      padding-top: 10px;
+      margin-top: 10px;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    Livraison gratuite dès 80 DT d’achat
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <div class="header-main">
+        <div class="search-bar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+
+        <a href="/" class="logo">Oma <span>Beauty</span></a>
+
+        <div class="nav-icons">
+          <a href="/login.html" class="nav-icon"><i class="fa-regular fa-user"></i></a>
+          <a href="#" class="nav-icon"><i class="fa-regular fa-heart"></i></a>
+          <a href="/panier.html" class="nav-icon">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span class="cart-count" id="cart-count">0</span>
+          </a>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <ul>
+          <li><a href="/boutique.html">Nouveautés</a></li>
+          <li><a href="/boutique.html?cat=maquillage">Maquillage</a></li>
+          <li><a href="/boutique.html?cat=parfum">Parfum</a></li>
+          <li><a href="/boutique.html?cat=soin">Soin Visage</a></li>
+          <li><a href="/boutique.html?cat=corps">Corps & Bain</a></li>
+          <li><a href="/boutique.html?cat=cheveux">Cheveux</a></li>
+          <li><a href="/boutique.html?cat=marques">Marques</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container section">
+    <h1 class="section-title" style="margin-bottom: var(--spacing-md);">Mon Panier</h1>
+
+    <div id="cart-content">
+      <!-- Injected via JS -->
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+
+  <script src="js/products.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCartPage();
+    });
+
+    function renderCartPage() {
+      const cart = getCart();
+      const container = document.getElementById('cart-content');
+
+      if (cart.length === 0) {
+        container.innerHTML = '<p>Votre panier est vide. <a href="/boutique.html" style="text-decoration: underline;">Continuer vos achats</a></p>';
+        return;
+      }
+
+      let html = `
+                <table class="cart-table">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Prix</th>
+                            <th>Quantité</th>
+                            <th>Total</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+      let subtotal = 0;
+
+      cart.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+
+        html += `
+                    <tr>
+                        <td>
+                            <div class="cart-item-info">
+                                <img src="${item.image}" class="cart-item-img" alt="${item.name}">
+                                <div>
+                                    <div style="font-weight: 600;">${item.name}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${formatPrice(item.price)}</td>
+                        <td>
+                            <input type="number" min="1" value="${item.quantity}" class="qty-input" onchange="updateQty(${item.id}, this.value)">
+                        </td>
+                        <td>${formatPrice(itemTotal)}</td>
+                        <td>
+                            <button onclick="removeFromCart(${item.id})" style="background:none; border:none; cursor:pointer; color: red;">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+      });
+
+      html += `
+                    </tbody>
+                </table>
+                
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Sous-total</span>
+                        <span>${formatPrice(subtotal)}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Livraison</span>
+                        <span>${subtotal >= 80 ? 'Gratuite' : '7.000 TND'}</span>
+                    </div>
+                    <div class="summary-row summary-total">
+                        <span>Total</span>
+                        <span>${formatPrice(subtotal + (subtotal >= 80 ? 0 : 7))}</span>
+                    </div>
+                    <a href="/commande.html" class="btn btn-primary" style="width: 100%; text-align: center; margin-top: 20px;">Commander</a>
+                </div>
+            `;
+
+      container.innerHTML = html;
+    }
+
+    function updateQty(id, qty) {
+      const cart = getCart();
+      const item = cart.find(i => i.id === id);
+      if (item) {
+        item.quantity = parseInt(qty);
+        if (item.quantity < 1) item.quantity = 1;
+        saveCart(cart);
+        renderCartPage();
+      }
+    }
+
+    function removeFromCart(id) {
+      let cart = getCart();
+      cart = cart.filter(i => i.id !== id);
+      saveCart(cart);
+      renderCartPage();
+    }
+  </script>
+</body>
+
+</html>
