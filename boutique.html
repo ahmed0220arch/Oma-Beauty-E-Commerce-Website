@@ -92,10 +92,109 @@
         /* Todo: Mobile Filter Drawer */
       }
     }
+
+    /* Search Overlay Styles */
+    .search-bar { cursor: pointer; }
+    .search-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 9999;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 100px;
+    }
+    .search-overlay.show { display: flex; }
+    .search-container {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .search-input-wrapper {
+        display: flex;
+        align-items: center;
+        border: 2px solid var(--color-accent);
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+    }
+    .search-input-wrapper input {
+        flex: 1;
+        border: none;
+        outline: none;
+        font-size: 1.1rem;
+        font-family: var(--font-body);
+    }
+    .search-input-wrapper i {
+        color: var(--color-accent);
+        margin-right: 12px;
+    }
+    .search-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #999;
+        margin-left: 10px;
+    }
+    .search-close:hover { color: #333; }
+    .search-results {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    .search-result-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .search-result-item:hover { background: #f9f9f9; }
+    .search-result-item img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    .search-result-info h4 { margin: 0 0 5px 0; font-size: 1rem; }
+    .search-result-info p { margin: 0; color: #666; font-size: 0.9rem; }
+    .search-result-price {
+        margin-left: auto;
+        font-weight: 600;
+        color: var(--color-accent);
+    }
+    .no-results {
+        text-align: center;
+        padding: 30px;
+        color: #666;
+    }
   </style>
 </head>
 
 <body>
+
+  <!-- Search Overlay -->
+  <div class="search-overlay" id="search-overlay">
+      <div class="search-container">
+          <div class="search-input-wrapper">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="search-input" placeholder="Rechercher un produit..." oninput="performSearch(this.value)">
+              <button class="search-close" onclick="closeSearch()">&times;</button>
+          </div>
+          <div class="search-results" id="search-results">
+              <div class="no-results">Tapez pour rechercher des produits...</div>
+          </div>
+      </div>
+  </div>
 
   <!-- Announcement Bar -->
   <div class="announcement-bar">
@@ -106,7 +205,7 @@
   <header>
     <div class="container">
       <div class="header-main">
-        <div class="search-bar">
+        <div class="search-bar" onclick="openSearch()">
           <i class="fa-solid fa-magnifying-glass"></i>
         </div>
 
@@ -348,6 +447,94 @@
 
       applyFilters();
     }
+
+    // Search Functions
+    let allProductsSearch = [];
+    
+    async function loadProductsForSearch() {
+        try {
+            const snapshot = await db.collection('products').get();
+            allProductsSearch = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+        } catch (error) {
+            console.error('Error loading products for search:', error);
+        }
+    }
+    
+    function openSearch() {
+        document.getElementById('search-overlay').classList.add('show');
+        document.getElementById('search-input').focus();
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeSearch() {
+        document.getElementById('search-overlay').classList.remove('show');
+        document.getElementById('search-input').value = '';
+        document.getElementById('search-results').innerHTML = '<div class="no-results">Tapez pour rechercher des produits...</div>';
+        document.body.style.overflow = '';
+    }
+    
+    function performSearch(query) {
+        const resultsContainer = document.getElementById('search-results');
+        
+        if (!query.trim()) {
+            resultsContainer.innerHTML = '<div class="no-results">Tapez pour rechercher des produits...</div>';
+            return;
+        }
+        
+        const searchTerms = query.toLowerCase().split(' ');
+        const results = allProductsSearch.filter(product => {
+            const searchText = `${product.name} ${product.brand} ${product.category} ${product.description || ''}`.toLowerCase();
+            return searchTerms.every(term => searchText.includes(term));
+        });
+        
+        if (results.length === 0) {
+            resultsContainer.innerHTML = '<div class="no-results">Aucun produit trouvé pour "' + query + '"</div>';
+            return;
+        }
+        
+        resultsContainer.innerHTML = results.slice(0, 10).map(product => `
+            <div class="search-result-item" onclick="selectProduct('${product.id}')">
+                <img src="${product.image || 'assets/placeholder.jpg'}" alt="${product.name}">
+                <div class="search-result-info">
+                    <h4>${product.name}</h4>
+                    <p>${product.brand} • ${product.category}</p>
+                </div>
+                <div class="search-result-price">${product.price.toFixed(3)} TND</div>
+            </div>
+        `).join('');
+    }
+    
+    function selectProduct(productId) {
+        closeSearch();
+        // Scroll to the product in the grid
+        const productCards = document.querySelectorAll('.product-card');
+        const product = allProductsSearch.find(p => p.id === productId);
+        if (product) {
+            // Filter to show this product's category
+            const checkboxes = document.querySelectorAll('#category-filters input');
+            checkboxes.forEach(cb => cb.checked = false);
+            checkboxes.forEach(cb => {
+                if (cb.value === product.category) {
+                    cb.checked = true;
+                }
+            });
+            applyFilters();
+        }
+    }
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeSearch();
+    });
+    
+    document.getElementById('search-overlay').addEventListener('click', function(e) {
+        if (e.target === this) closeSearch();
+    });
+    
+    // Load products for search when page loads
+    loadProductsForSearch();
   </script>
 </body>
 
